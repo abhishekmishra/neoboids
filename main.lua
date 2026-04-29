@@ -25,7 +25,7 @@ local boids
 
 local function initBoids()
     boids = {}
-    for i = 1, 300 do
+    for i = 1, 100 do
         local b = Boid(boidPanel)
         table.insert(boids, b)
     end
