@@ -4,7 +4,7 @@
 -- date: 23/3/2024
 -- author: Abhishek Mishra
 
-local Class = require('middleclass')
+local Class = require('lib.neoluv.middleclass')
 local Boid = require('boid')
 local nl = require('ne0luv')
 local Layout = nl.Layout
@@ -165,14 +165,14 @@ function ControlPanel:initialize(w, h)
         {
             text = 'FPS: 0',
             bgColor = { 0.2, 0.2, 0, 1 },
-            fgColor = { 1, 0, 0, 1},
+            fgColor = { 1, 0, 0, 1 },
             align = 'center'
         }
     )
     self:addChild(self.fpsText)
 end
 
---- Create and add a separator to the control panel, with the 
+--- Create and add a separator to the control panel, with the
 -- specified height.
 -- @param height The height of the separator
 function ControlPanel:separator(height)

@@ -3,7 +3,7 @@
 -- date: 23/3/2024
 -- author: Abhishek Mishra
 
-local class = require('middleclass')
+local class = require('lib.neoluv.middleclass')
 local nl = require('lib.neoluv')
 local Vector = nl.Vector
 

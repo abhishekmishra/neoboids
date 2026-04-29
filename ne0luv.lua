@@ -6,7 +6,7 @@
 ]]
 local ne0luv = {}
 
-local Class = require('middleclass')
+local Class = require('lib.neoluv.middleclass')
 
 --- vector.lua - A simple vector class. Similar to the Vector implementation in
 -- the p5.js library.
@@ -245,7 +245,6 @@ function Rect:setHeight(h)
     self.dim.y = h
 end
 
-
 -- Default values for the panel
 local PANEL_DEFAULT_WIDTH = 100
 local PANEL_DEFAULT_HEIGHT = 100
@@ -352,6 +351,7 @@ end
 function Panel:setY(y)
     self.rect:setY(y)
 end
+
 --- text.lua - A panel class that displays a single line of text
 --
 -- date: 17/02/2024
@@ -364,10 +364,10 @@ local Text = Class('Text', Panel)
 function Text:initialize(rect, config)
     Panel.initialize(self, rect)
     self.config = config or {}
-    self.fgColor = self.config.fgColor or { 1, 1, 1, 1 } -- Default text color is white
-    self.font = self.config.font or love.graphics.newFont(14) -- Default font size is 14
-    self.displayText = self.config.text or "" -- Default text is an empty string
-    self.align = self.config.align or "left" -- Default alignment is left
+    self.fgColor = self.config.fgColor or { 1, 1, 1, 1 }            -- Default text color is white
+    self.font = self.config.font or love.graphics.newFont(14)       -- Default font size is 14
+    self.displayText = self.config.text or ""                       -- Default text is an empty string
+    self.align = self.config.align or "left"                        -- Default alignment is left
     self._text = love.graphics.newText(self.font, self.displayText) -- Create the love2d text object
 end
 
@@ -388,6 +388,7 @@ function Text:_draw()
     love.graphics.setFont(self.font)
     love.graphics.printf(self.displayText, self:getX(), self:getY(), self:getWidth(), self.align)
 end
+
 --- button.lua - A simple button class
 --
 -- date: 17/02/2024
@@ -478,6 +479,7 @@ function Button:contains(x, y)
     return x >= 0 and x <= self.width and
         y >= 0 and y <= self.height
 end
+
 -- Define the Slider class that extends the Panel class
 local Slider = Class('Slider', Panel)
 
@@ -488,9 +490,9 @@ function Slider:initialize(rect, config)
     self.minValue = self.config.minValue or 0                     -- Default minValue is 0
     self.maxValue = self.config.maxValue or 100                   -- Default maxValue is 100
     self.currentValue = self.config.currentValue or self.minValue -- Default currentValue is minValue
-    self.handleWidth = 10                             -- Width of the handle
-    self.handleHeight = self:getHeight()                    -- Height of the handle
-    self.handleX = self:calculateHandlePosition()     -- X position of the handle
+    self.handleWidth = 10                                         -- Width of the handle
+    self.handleHeight = self:getHeight()                          -- Height of the handle
+    self.handleX = self:calculateHandlePosition()                 -- X position of the handle
     self.changeHandler = {}
 end
 
@@ -541,7 +543,8 @@ function Slider:_draw()
     end
 
     -- Draw the line
-    love.graphics.line(self:getX(), self:getY() + self:getHeight() / 2, self:getX() + self:getWidth(), self:getY() + self:getHeight() / 2)
+    love.graphics.line(self:getX(), self:getY() + self:getHeight() / 2, self:getX() + self:getWidth(),
+        self:getY() + self:getHeight() / 2)
 
     -- Draw the handle
     love.graphics.rectangle('fill', self.handleX, self:getY(), self.handleWidth, self.handleHeight)
@@ -631,7 +634,6 @@ function Layout:addChild(c)
             startPos = startPos + child:getHeight()
         end
     end
-
 end
 
 function Layout:setX(x)
