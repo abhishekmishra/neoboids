@@ -1,0 +1,8 @@
+name = "NeoBoids"
+default_targets = ["win32", "win64"]
+build_directory = "build/makelove"
+
+love_files = [
+    "::git-ls-tree::",
+    "-*/.*",
+]
