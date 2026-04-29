@@ -9,7 +9,7 @@ local canvasHeight = 768
 
 function love.conf(t)
     -- set the window title
-    t.window.title = "Flocking Simulation"
+    t.window.title = "NeoBoids"
 
     -- set the window size
     t.window.width = canvasWidth
