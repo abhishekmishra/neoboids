@@ -6,8 +6,9 @@
 
 local Class = require('lib.neoluv.middleclass')
 local Boid = require('boid')
-local nl = require('ne0luv')
-local Layout = nl.Layout
+local nl = require('lib.neoluv')
+local ColumnLayout = nl.ColumnLayout
+local RowLayout = nl.RowLayout
 local Rect = nl.Rect
 local Slider = nl.Slider
 local Panel = nl.Panel
@@ -22,16 +23,14 @@ local cpWidth = 150
 ----- ControlPanel ------
 
 -- A Control Panel Class which extends Layout
-local ControlPanel = Class('ControlPanel', Layout)
+local ControlPanel = Class('ControlPanel', ColumnLayout)
 
 function ControlPanel:initialize(w, h)
-    Layout.initialize(self, Rect(0, 0, w, h),
-        {
-            layout = 'column',
-            bgColor = { 0.1, 0.1, 0.5 },
-        }
-    )
-
+    ColumnLayout.initialize(self, {
+        size = { w = w, h = h },
+    }, {
+        bgColor = { 0.1, 0.1, 0.5 }
+    })
     local itemH = 20
 
     -- sliders
@@ -50,7 +49,9 @@ function ControlPanel:initialize(w, h)
     ----------- Alignment Slider ------------
     -- create and add alignment slider label
     alignmentLabel = Text(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             text = 'Alignment:',
             bgColor = { 0.2, 0.2, 0, 1 },
@@ -61,7 +62,9 @@ function ControlPanel:initialize(w, h)
 
     -- create and add alignment slider
     self.alignmentSlider = Slider(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             minValue = 0,
             maxValue = 1.5,
@@ -88,7 +91,9 @@ function ControlPanel:initialize(w, h)
 
     -- create and add cohesion slider label
     cohesionLabel = Text(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             text = 'Cohesion:',
             bgColor = { 0.2, 0.2, 0, 1 },
@@ -99,7 +104,9 @@ function ControlPanel:initialize(w, h)
     self:addChild(cohesionLabel)
 
     self.cohesionSlider = Slider(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             minValue = 0,
             maxValue = 1,
@@ -124,7 +131,9 @@ function ControlPanel:initialize(w, h)
     ----------- Separation Slider ------------
 
     separationLabel = Text(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             text = 'Separation:',
             bgColor = { 0.2, 0.2, 0, 1 },
@@ -135,7 +144,9 @@ function ControlPanel:initialize(w, h)
     self:addChild(separationLabel)
 
     self.separationSlider = Slider(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             minValue = 0,
             maxValue = 1,
@@ -161,7 +172,9 @@ function ControlPanel:initialize(w, h)
     self:separator(ch - totalHeight)
 
     self.fpsText = Text(
-        Rect(0, 0, cpWidth, 20),
+        {
+            size = { w = cpWidth, h = 20 }
+        },
         {
             text = 'FPS: 0',
             bgColor = { 0.2, 0.2, 0, 1 },
@@ -203,16 +216,16 @@ end
 --- love.load: Called once at the start of the simulation
 function love.load()
     cw, ch = love.graphics.getWidth(), love.graphics.getHeight()
-    top = Layout(
-        Rect(0, 0, cw, ch),
+    top = RowLayout(
+        { size = { w = cw, h = ch } },
         {
             bgColor = { 0.1, 0.1, 0.1 },
             layout = 'row',
         }
     )
 
-    boidPanel = Layout(
-        Rect(0, 0, cw - cpWidth, ch),
+    boidPanel = RowLayout(
+        { size = { w = cw - cpWidth, h = ch } },
         {
             bgColor = { 0.1, 0.5, 0.1 },
         }
