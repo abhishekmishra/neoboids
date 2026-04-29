@@ -4,15 +4,8 @@
 -- date: 23/3/2024
 -- author: Abhishek Mishra
 
-local Class = require('lib.neoluv.middleclass')
 local Boid = require('boid')
 local nl = require('lib.neoluv')
-local ColumnLayout = nl.ColumnLayout
-local RowLayout = nl.RowLayout
-local Rect = nl.Rect
-local Slider = nl.Slider
-local Panel = nl.Panel
-local Text = nl.Text
 local ControlPanel = require('controlpanel')
 
 local cw, ch
@@ -40,7 +33,7 @@ end
 --- love.load: Called once at the start of the simulation
 function love.load()
     cw, ch = love.graphics.getWidth(), love.graphics.getHeight()
-    top = RowLayout(
+    top = nl.RowLayout(
         { size = { w = cw, h = ch } },
         {
             bgColor = { 0.1, 0.1, 0.1 },
@@ -48,7 +41,7 @@ function love.load()
         }
     )
 
-    boidPanel = RowLayout(
+    boidPanel = nl.RowLayout(
         { size = { w = cw - cpWidth, h = ch } },
         {
             bgColor = { 0.1, 0.5, 0.1 },
