@@ -4,7 +4,7 @@
 -- author: Abhishek Mishra
 
 local class = require('middleclass')
-local nl = require('ne0luv')
+local nl = require('lib.neoluv')
 local Vector = nl.Vector
 
 --- Boid class
@@ -22,7 +22,7 @@ function Boid:initialize(panel, x, y)
     self.position = Vector(x, y)
     self.velocity = Vector.random2D()
     -- get random value in range 0.5 to 1.5
-    local m = math.random(20, 40)/10
+    local m = math.random(20, 40) / 10
     self.velocity:setMag(m)
     self.acceleration = Vector(0, 0)
     self.maxForce = 0.2
@@ -155,10 +155,10 @@ function Boid:show()
     -- draw boid as a circle in the direction of the velocity
     love.graphics.push()
     love.graphics.translate(self.position.x, self.position.y)
-    local theta = self.velocity:heading() - math.pi/2
+    local theta = self.velocity:heading() - math.pi / 2
     love.graphics.rotate(theta)
     --- three lines of the triangle, base width is half of the boid width
-    local baseWidth = self.boidWidth/2
+    local baseWidth = self.boidWidth / 2
     -- base line
     love.graphics.line(-baseWidth, -baseWidth, baseWidth, -baseWidth)
     -- right line
