@@ -9,7 +9,7 @@ function ControlPanel:initialize(w, h)
     nl.ColumnLayout.initialize(self, {
         size = { w = w, h = h },
     }, {
-        bgColor = { 0.1, 0.1, 0.5 }
+        bgColor = PALETTE.dark
     })
     local itemH = 20
 
@@ -34,7 +34,7 @@ function ControlPanel:initialize(w, h)
         },
         {
             text = 'Alignment:',
-            bgColor = { 0.2, 0.2, 0, 1 },
+            bgColor = PALETTE.mid,
             align = 'center'
         }
     )
@@ -49,7 +49,7 @@ function ControlPanel:initialize(w, h)
             minValue = 0,
             maxValue = 1.5,
             currentValue = 0.5,
-            bgColor = { 0.2, 0.2, 0, 1 }
+            bgColor = PALETTE.mid
         }
     )
 
@@ -76,7 +76,7 @@ function ControlPanel:initialize(w, h)
         },
         {
             text = 'Cohesion:',
-            bgColor = { 0.2, 0.2, 0, 1 },
+            bgColor = PALETTE.mid,
             align = 'center'
         }
     )
@@ -91,7 +91,7 @@ function ControlPanel:initialize(w, h)
             minValue = 0,
             maxValue = 1,
             currentValue = 0.1,
-            bgColor = { 0.2, 0.2, 0, 1 }
+            bgColor = PALETTE.mid
         }
     )
 
@@ -116,7 +116,7 @@ function ControlPanel:initialize(w, h)
         },
         {
             text = 'Separation:',
-            bgColor = { 0.2, 0.2, 0, 1 },
+            bgColor = PALETTE.mid,
             align = 'center'
         }
     )
@@ -131,7 +131,7 @@ function ControlPanel:initialize(w, h)
             minValue = 0,
             maxValue = 1,
             currentValue = 0.4,
-            bgColor = { 0.2, 0.2, 0, 1 }
+            bgColor = PALETTE.mid
         }
     )
 
@@ -157,8 +157,8 @@ function ControlPanel:initialize(w, h)
         },
         {
             text = 'FPS: 0',
-            bgColor = { 0.2, 0.2, 0, 1 },
-            fgColor = { 1, 0, 0, 1 },
+            bgColor = PALETTE.mid,
+            fgColor = PALETTE.light,
             align = 'center'
         }
     )
@@ -172,7 +172,7 @@ function ControlPanel:separator(height)
     local emptyPanel = nl.Panel(
         nl.Rect(0, 0, self:getWidth(), height),
         {
-            bgColor = { 0.2, 0.2, 0, 1 }
+            bgColor = PALETTE.mid
         }
     )
     self:addChild(emptyPanel)

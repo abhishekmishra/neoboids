@@ -150,7 +150,7 @@ function Boid:show()
     end
 
     -- set the color of the boid
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(unpack(PALETTE.lighter))
 
     -- draw boid as a circle in the direction of the velocity
     love.graphics.push()

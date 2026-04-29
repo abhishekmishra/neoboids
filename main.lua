@@ -4,6 +4,7 @@
 -- date: 23/3/2024
 -- author: Abhishek Mishra
 
+require('common')
 local Boid = require('boid')
 local nl = require('lib.neoluv')
 local ControlPanel = require('controlpanel')
@@ -36,7 +37,7 @@ function love.load()
     top = nl.RowLayout(
         { size = { w = cw, h = ch } },
         {
-            bgColor = { 0.1, 0.1, 0.1 },
+            bgColor = PALETTE.darkest,
             layout = 'row',
         }
     )
@@ -44,7 +45,7 @@ function love.load()
     boidPanel = nl.RowLayout(
         { size = { w = cw - cpWidth, h = ch } },
         {
-            bgColor = { 0.1, 0.5, 0.1 },
+            bgColor = PALETTE.darkest,
         }
     )
     top:addChild(boidPanel)
