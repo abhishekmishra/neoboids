@@ -13,7 +13,7 @@ local cw, ch
 local top
 local boidPanel
 local controlPanel
-local cpWidth = 150
+local cpWidth = 180
 
 
 ------- Main Program -------
@@ -38,7 +38,6 @@ function love.load()
         { size = { w = cw, h = ch } },
         {
             bgColor = PALETTE.darkest,
-            layout = 'row',
         }
     )
 
