@@ -5,6 +5,10 @@ local Class = require('lib.neoluv.middleclass')
 -- A Control Panel Class which extends Layout
 local ControlPanel = Class('ControlPanel', nl.ColumnLayout)
 
+ControlPanel.static.LABEL_HEIGHT = 24
+ControlPanel.static.SLIDER_HEIGHT = 20
+ControlPanel.static.SEPARATOR_HEIGHT = 20
+
 function ControlPanel:initialize(w, h)
     nl.ColumnLayout.initialize(self, {
         size = { w = w, h = h },
@@ -15,7 +19,6 @@ function ControlPanel:initialize(w, h)
         bgColor = PALETTE.dark,
         borderColor = PALETTE.darkest
     })
-    local itemH = 20
 
     -- sliders
     self.alignmentSlider = nil
@@ -32,29 +35,12 @@ function ControlPanel:initialize(w, h)
 
     ----------- Alignment Slider ------------
     -- create and add alignment slider label
-    alignmentLabel = nl.Text(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            text = 'Alignment:',
-            bgColor = PALETTE.mid,
-            align = 'center'
-        }
-    )
+    alignmentLabel = nl.Text(self:getLabelConfig('Alignment:'))
     self:addChild(alignmentLabel)
 
     -- create and add alignment slider
     self.alignmentSlider = nl.Slider(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            minValue = 0,
-            maxValue = 1.5,
-            currentValue = 0.5,
-            bgColor = PALETTE.mid
-        }
+        self:getSliderConfig(0.5, 1.5)
     )
 
     self.alignmentSlider:addChangeHandler(function(value)
@@ -69,34 +55,16 @@ function ControlPanel:initialize(w, h)
     alignmentLabel:setText('Alignment: ' .. self.alignmentSlider.currentValue)
 
     -- add empty panel
-    self:separator(20)
+    self:separator(ControlPanel.SEPARATOR_HEIGHT)
 
     ----------- Cohesion Slider ------------
 
     -- create and add cohesion slider label
-    cohesionLabel = nl.Text(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            text = 'Cohesion:',
-            bgColor = PALETTE.mid,
-            align = 'center'
-        }
-    )
-
+    cohesionLabel = nl.Text(self:getLabelConfig('Cohesion:'))
     self:addChild(cohesionLabel)
 
     self.cohesionSlider = nl.Slider(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            minValue = 0,
-            maxValue = 1,
-            currentValue = 0.1,
-            bgColor = PALETTE.mid
-        }
+        self:getSliderConfig(0.1, 1)
     )
 
     self.cohesionSlider:addChangeHandler(function(value)
@@ -110,33 +78,14 @@ function ControlPanel:initialize(w, h)
     cohesionLabel:setText('Cohesion: ' .. self.cohesionSlider.currentValue)
 
     -- separator
-    self:separator(20)
+    self:separator(ControlPanel.SEPARATOR_HEIGHT)
 
     ----------- Separation Slider ------------
-
-    separationLabel = nl.Text(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            text = 'Separation:',
-            bgColor = PALETTE.mid,
-            align = 'center'
-        }
-    )
-
+    separationLabel = nl.Text(self:getLabelConfig('Separation:'))
     self:addChild(separationLabel)
 
     self.separationSlider = nl.Slider(
-        {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
-        },
-        {
-            minValue = 0,
-            maxValue = 1,
-            currentValue = 0.4,
-            bgColor = PALETTE.mid
-        }
+        self:getSliderConfig(0.4, 1)
     )
 
     self.separationSlider:addChangeHandler(function(value)
@@ -152,17 +101,19 @@ function ControlPanel:initialize(w, h)
     -- separator
     -- total height for 3 sliders, 3 labels, and 2 separators, each itemH
     -- in height. Add one more itemH for the fps text display.
-    local totalHeight = itemH * (3 + 3 + 2 + 1);
+    local totalHeight = 3 * ControlPanel.SLIDER_HEIGHT + 3 * ControlPanel.LABEL_HEIGHT +
+        2 * ControlPanel.SEPARATOR_HEIGHT + 1 * ControlPanel.LABEL_HEIGHT;
     self:separator(self:getCanvasRect():getHeight() - totalHeight)
 
     self.fpsText = nl.Text(
         {
-            size = { w = self:getCanvasRect():getWidth(), h = 20 }
+            size = { w = self:getCanvasRect():getWidth(), h = ControlPanel.LABEL_HEIGHT },
+            padding = 1
         },
         {
             text = 'FPS: 0',
             bgColor = PALETTE.mid,
-            fgColor = PALETTE.light,
+            fgColor = PALETTE.lightest,
             align = 'center'
         }
     )
@@ -180,6 +131,34 @@ function ControlPanel:separator(height)
         }
     )
     self:addChild(emptyPanel)
+end
+
+function ControlPanel:getLabelConfig(label)
+    return {
+            size = { w = self:getCanvasRect():getWidth(), h = ControlPanel.LABEL_HEIGHT },
+            padding = 1
+        },
+        {
+            text = label,
+            bgColor = PALETTE.mid,
+            fgColor = PALETTE.lightest,
+            align = 'center'
+        }
+end
+
+function ControlPanel:getSliderConfig(val, max)
+    return {
+            size = { w = self:getCanvasRect():getWidth(), h = ControlPanel.SLIDER_HEIGHT }
+        },
+        {
+            minValue = 0,
+            maxValue = max or 1.5,
+            currentValue = val or 0.5,
+            bgColor = PALETTE.mid,
+            fgColor = PALETTE.light,
+            handleColor = PALETTE.lighter,
+            activeColor = PALETTE.lightest
+        }
 end
 
 return ControlPanel
