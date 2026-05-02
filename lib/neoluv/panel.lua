@@ -13,15 +13,15 @@
 -- - A `Panel` is visible when `shown == true`.
 -- - `Panel:draw()` manages Love2D graphics state for the panel.
 -- - Before calling `Panel:_draw()`, `Panel:draw()` translates the Love2D
---   transform to the panel origin.
--- - `Panel:_draw()` renders in panel-local coordinates, with the panel's
---   top-left at `(0, 0)`.
+--   transform to the panel canvas origin.
+-- - `Panel:_draw()` renders in canvas-local coordinates, with the panel's
+--   canvas top-left at `(0, 0)`.
 -- - `Panel` does not apply clipping by default.
 -- - Public mouse handlers accept coordinates in the parent panel's coordinate
 --   space.
 -- - `Panel` converts parent-space mouse coordinates to panel-local
 --   coordinates before calling underscored mouse handlers.
--- - Panel bounds are used for hit testing in panel-local coordinates.
+-- - Panel hitbox bounds are used for hit testing in panel-local coordinates.
 -- - `Panel:mousepressed()` forwards to `Panel:_mousepressed()` only when the
 --   press is inside the panel bounds.
 -- - `Panel:mousereleased()` forwards to `Panel:_mousereleased()` only when the
@@ -84,6 +84,29 @@ local function _normalize_layout_config(layoutConfig)
     return Rect(position.x, position.y, size.w, size.h)
 end
 
+
+local Quad = Class('Quad')
+
+function Quad.static:normalize_quad(layoutConfig, attr)
+    local value = Quad(0)
+    if (layoutConfig and layoutConfig[attr]
+            and type(layoutConfig[attr]) == "number") then
+        value = Quad(layoutConfig[attr])
+    end
+    if (layoutConfig and layoutConfig[attr]
+            and type(layoutConfig[attr]) == "table") then
+        value = Quad(unpack(layoutConfig[attr]))
+    end
+    return value
+end
+
+function Quad:initialize(n, e, s, w)
+    self.n = n or 0
+    self.e = e or self.n
+    self.w = w or self.e
+    self.s = s or self.n
+end
+
 -- Define the Panel class
 local Panel = Class('Panel')
 
@@ -96,7 +119,17 @@ local Panel = Class('Panel')
 -- subclasses.
 function Panel:initialize(layoutConfig, displayConfig)
     self.rect = _normalize_layout_config(layoutConfig)
+    self.margin = Quad:normalize_quad(layoutConfig, 'margin')
+    self.border = Quad:normalize_quad(layoutConfig, 'border')
+    self.padding = Quad:normalize_quad(layoutConfig, 'padding')
+
     self.displayConfig = displayConfig or {}
+    if not self.displayConfig.borderColor then
+        self.displayConfig.borderColor = { 0, 0, 0, 1 }
+    end
+    if not self.displayConfig.bgColor then
+        self.displayConfig.bgColor = { 0, 0, 0, 0.1 }
+    end
     self.parent = nil
     self.shown = true
 end
@@ -122,20 +155,64 @@ function Panel:update(dt)
     -- Code to update the panel
 end
 
---- Draw the panel in its local coordinate space.
--- `Panel:draw()` translates the Love2D transform to the panel origin before
+--- Draw the panel in its canvas coordinate space.
+-- `Panel:draw()` translates the Love2D transform to the canvas origin before
 -- calling `Panel:_draw()`.
 function Panel:draw()
     if self.shown then
+        local outerRect = self:getOuterRect()
+        local borderRect = self:getBorderRect()
+        local paintRect = self:getPaintRect()
+        local canvasRect = self:getCanvasRect()
+
         love.graphics.push()
+
+        -- translate to window position
         love.graphics.translate(self:getX(), self:getY())
+        love.graphics.setColor({ 1, 1, 1, 0.4 })
+        love.graphics.rectangle(
+            'fill',
+            outerRect:getX(), outerRect:getY(),
+            outerRect:getWidth(), outerRect:getHeight()
+        )
+
+        -- draw the border
+        love.graphics.setColor(self.displayConfig.borderColor)
+        -- north border
+        love.graphics.rectangle('fill',
+            borderRect:getX(), borderRect:getY(),
+            borderRect:getWidth(), self.border.n)
+        -- east border
+        love.graphics.rectangle('fill',
+            borderRect:getX() + borderRect:getWidth() - self.border.e, borderRect:getY(),
+            self.border.e, borderRect:getHeight())
+        -- west border
+        love.graphics.rectangle('fill',
+            borderRect:getX(), borderRect:getY(),
+            self.border.w, borderRect:getHeight())
+        -- south border
+        love.graphics.rectangle('fill',
+            borderRect:getX(), borderRect:getY() + borderRect:getHeight() - self.border.s,
+            borderRect:getWidth(), self.border.s)
+
+        -- draw the background in the paint area
+        love.graphics.setColor(self.displayConfig.bgColor)
+        love.graphics.rectangle(
+            'fill',
+            paintRect:getX(), paintRect:getY(),
+            paintRect:getWidth(), paintRect:getHeight()
+        )
+
+        -- translate to the canvas area
+        love.graphics.translate(canvasRect:getX(), canvasRect:getY())
         self:_draw()
+
         love.graphics.pop()
     end
 end
 
+--- Code to draw the panel
 function Panel:_draw()
-    -- Code to draw the panel
 end
 
 function Panel:keypressed(key)
@@ -145,17 +222,24 @@ end
 --- Convert a point from parent-space coordinates into panel-local
 -- coordinates.
 function Panel:toLocalPoint(x, y)
-    return x - self:getX(), y - self:getY()
+    local canvasRect = self:getCanvasRect()
+    return x - self:getX() - canvasRect:getX(),
+        y - self:getY() - canvasRect:getY()
 end
 
---- Return whether a panel-local point is inside the panel bounds.
+--- Return whether a canvas-local point is inside the canvas bounds.
 function Panel:containsLocalPoint(x, y)
     if x == nil or y == nil then
         return false
     end
 
-    return x >= 0 and x <= self:getWidth()
-        and y >= 0 and y <= self:getHeight()
+    local canvasRect = self:getCanvasRect()
+    return x >= 0 and x <= canvasRect:getWidth()
+        and y >= 0 and y <= canvasRect:getHeight()
+end
+
+function Panel:containsHitboxPoint(x, y)
+    return self:getHitboxRect():contains(x, y)
 end
 
 function Panel:mousepressed(x, y, button, istouch, presses)
@@ -163,8 +247,9 @@ function Panel:mousepressed(x, y, button, istouch, presses)
         return
     end
 
-    local localX, localY = self:toLocalPoint(x, y)
-    if self:containsLocalPoint(localX, localY) then
+    local panelX, panelY = x - self:getX(), y - self:getY()
+    if self:containsHitboxPoint(panelX, panelY) then
+        local localX, localY = self:toLocalPoint(x, y)
         self:_mousepressed(localX, localY, button, istouch, presses)
     end
 end
@@ -177,8 +262,9 @@ function Panel:mousereleased(x, y, button, istouch, presses)
         return
     end
 
-    local localX, localY = self:toLocalPoint(x, y)
-    if self:containsLocalPoint(localX, localY) then
+    local panelX, panelY = x - self:getX(), y - self:getY()
+    if self:containsHitboxPoint(panelX, panelY) then
+        local localX, localY = self:toLocalPoint(x, y)
         self:_mousereleased(localX, localY, button, istouch, presses)
     end
 end
@@ -191,8 +277,9 @@ function Panel:mousemoved(x, y, dx, dy, istouch)
         return
     end
 
-    local localX, localY = self:toLocalPoint(x, y)
-    if self:containsLocalPoint(localX, localY) then
+    local panelX, panelY = x - self:getX(), y - self:getY()
+    if self:containsHitboxPoint(panelX, panelY) then
+        local localX, localY = self:toLocalPoint(x, y)
         self:_mousemoved(localX, localY, dx, dy, istouch)
     else
         self:_mouseout()
@@ -227,6 +314,73 @@ end
 
 function Panel:setY(y)
     self.rect:setY(y)
+end
+
+function Panel:getOuterRect()
+    return Rect(0, 0, self:getWidth(), self:getHeight())
+end
+
+--- Return the border box in panel-local coordinates.
+function Panel:getBorderRect()
+    return Rect(
+        self.margin.w,
+        self.margin.n,
+        self:getWidth() - self.margin.w - self.margin.e,
+        self:getHeight() - self.margin.n - self.margin.s
+    )
+end
+
+--- Return the paint box in panel-local coordinates.
+-- The paint box excludes margin and border, and includes padding.
+function Panel:getPaintRect()
+    local borderRect = self:getBorderRect()
+    return Rect(
+        borderRect:getX() + self.border.w,
+        borderRect:getY() + self.border.n,
+        borderRect:getWidth() - self.border.w - self.border.e,
+        borderRect:getHeight() - self.border.n - self.border.s
+    )
+end
+
+--- Return the canvas box in panel-local coordinates.
+-- The canvas box excludes margin, border, and padding.
+function Panel:getCanvasRect()
+    local paintRect = self:getPaintRect()
+    return Rect(
+        paintRect:getX() + self.padding.w,
+        paintRect:getY() + self.padding.n,
+        paintRect:getWidth() - self.padding.w - self.padding.e,
+        paintRect:getHeight() - self.padding.n - self.padding.s
+    )
+end
+
+--- Return the interactive hitbox in panel-local coordinates.
+function Panel:getHitboxRect()
+    return self:getPaintRect()
+end
+
+function Panel:setMargin(n, e, s, w)
+    self.margin = Quad(n, e, s, w)
+end
+
+function Panel:getMargin()
+    return self.margin
+end
+
+function Panel:setBorder(n, e, s, w)
+    self.border = Quad(n, e, s, w)
+end
+
+function Panel:getBorder()
+    return self.border
+end
+
+function Panel:setPadding(n, e, s, w)
+    self.padding = Quad(n, e, s, w)
+end
+
+function Panel:getPadding()
+    return self.padding
 end
 
 return Panel
