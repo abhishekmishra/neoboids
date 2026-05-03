@@ -33,6 +33,38 @@ local function initBoids()
     end
 end
 
+local function rebuildQuadTree()
+    local w, h = cw - cpWidth, ch
+    local tree = QuadTree({ w / 2, h / 2, w / 2, h / 2 })
+
+    for _, boid in ipairs(boids) do
+        tree:insert({
+            x = boid.position.x,
+            y = boid.position.y,
+            boid = boid
+        })
+    end
+
+    return tree
+end
+
+local function nearbyBoids(boid)
+    local w, h = cw - cpWidth, ch
+    local neighbourPoints = qtree:queryRange({
+        boid.position.x,
+        boid.position.y,
+        w / 10,
+        h / 10
+    })
+    local neighbourBoids = {}
+
+    for _, p in ipairs(neighbourPoints) do
+        table.insert(neighbourBoids, p.boid)
+    end
+
+    return neighbourBoids
+end
+
 --- love.load: Called once at the start of the simulation
 function love.load()
     cw, ch = love.graphics.getWidth(), love.graphics.getHeight()
@@ -64,30 +96,20 @@ end
 function love.update(dt)
     top:update(dt)
 
-    for _, boid in ipairs(boids) do
-        boid:edges()
+    qtree = rebuildQuadTree()
 
+    for _, boid in ipairs(boids) do
+        boid:flock(
+            nearbyBoids(boid),
+            controlPanel.alignmentSlider,
+            controlPanel.cohesionSlider,
+            controlPanel.separationSlider
+        )
+    end
+
+    for _, boid in ipairs(boids) do
         boid:update()
-    end
-    local w, h = cw - cpWidth, ch
-    qtree = QuadTree({ w / 2, h / 2, w / 2, h / 2 })
-    for _, boid in ipairs(boids) do
-        local p = {
-            x = boid.position.x,
-            y = boid.position.y,
-            boid = boid
-        }
-        qtree:insert(p)
-    end
-
-    for _, boid in ipairs(boids) do
-        local neighbourPoints = qtree:queryRange({ boid.position.x, boid.position.y, w / 10, h / 10 })
-        local neighbourBoids = {}
-        for _, p in ipairs(neighbourPoints) do
-            table.insert(neighbourBoids, p.boid)
-        end
-        boid:flock(neighbourBoids, controlPanel.alignmentSlider, controlPanel.cohesionSlider,
-            controlPanel.separationSlider)
+        boid:edges()
     end
 end
 
