@@ -28,12 +28,14 @@ end
 
 local QuadTree = Class('QuadTree')
 
-function QuadTree:initialize(boundary, capacity)
+function QuadTree:initialize(boundary, capacity, depth, maxDepth)
     if boundary and not boundary.class then
         boundary = AABB(unpack(boundary))
     end
     self.boundary = boundary
     self.capacity = capacity or 4
+    self.depth = depth or 0
+    self.maxDepth = maxDepth or 10
     self.points = {}
 
     -- children
@@ -50,8 +52,14 @@ function QuadTree:insert(p)
         return false -- object cannot be added
     end
 
-    -- If there is space in this quad tree and if it doesn't have subdivisions, add the object here
+    -- If this is a leaf with space, add the object here.
     if (#self.points < self.capacity and self.nw == nil) then
+        table.insert(self.points, p)
+        return true
+    end
+
+    -- Keep overflow points at the deepest leaf instead of subdividing forever.
+    if self.depth >= self.maxDepth then
         table.insert(self.points, p)
         return true
     end
@@ -60,8 +68,6 @@ function QuadTree:insert(p)
     if (self.nw == nil) then
         self:subdivide()
     end
-    -- We have to add the points/data contained in this quad array to the new quads if we only want
-    -- the last node to hold the data
 
     if (self.nw:insert(p)) then return true end
     if (self.ne:insert(p)) then return true end
@@ -78,10 +84,18 @@ function QuadTree:subdivide()
     local qw = self.boundary.hw / 2
     local x = self.boundary.x
     local y = self.boundary.y
-    self.nw = QuadTree(AABB(x - qw, y - qh, qw, qh), self.capacity)
-    self.ne = QuadTree(AABB(x + qw, y - qh, qw, qh), self.capacity)
-    self.se = QuadTree(AABB(x + qw, y + qh, qw, qh), self.capacity)
-    self.sw = QuadTree(AABB(x - qw, y + qh, qw, qh), self.capacity)
+    local childDepth = self.depth + 1
+    self.nw = QuadTree(AABB(x - qw, y - qh, qw, qh), self.capacity, childDepth, self.maxDepth)
+    self.ne = QuadTree(AABB(x + qw, y - qh, qw, qh), self.capacity, childDepth, self.maxDepth)
+    self.se = QuadTree(AABB(x + qw, y + qh, qw, qh), self.capacity, childDepth, self.maxDepth)
+    self.sw = QuadTree(AABB(x - qw, y + qh, qw, qh), self.capacity, childDepth, self.maxDepth)
+
+    local points = self.points
+    self.points = {}
+
+    for _, p in ipairs(points) do
+        self:insert(p)
+    end
 end
 
 -- Find all points that appear within a range
