@@ -79,7 +79,7 @@ function Boid:align(boids)
         steering = steering / total
         steering:setMag(self.maxSpeed)
         steering = steering - self.velocity
-        steering:limit(self.maxForce)
+        steering = steering:limit(self.maxForce)
     end
     return steering
 end
@@ -104,7 +104,7 @@ function Boid:separation(boids)
         steering = steering / total
         steering:setMag(self.maxSpeed)
         steering = steering - self.velocity
-        steering:limit(self.maxForce)
+        steering = steering:limit(self.maxForce)
     end
     return steering
 end
@@ -128,7 +128,7 @@ function Boid:cohesion(boids)
         steering = steering - self.position
         steering:setMag(self.maxSpeed)
         steering = steering - self.velocity
-        steering:limit(self.maxForce)
+        steering = steering:limit(self.maxForce)
     end
     return steering
 end
@@ -137,7 +137,7 @@ end
 function Boid:update()
     self.position = self.position + self.velocity
     self.velocity = self.velocity + self.acceleration
-    self.velocity:limit(self.maxSpeed)
+    self.velocity = self.velocity:limit(self.maxSpeed)
     self.acceleration = self.acceleration * 0
 end
 

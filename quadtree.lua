@@ -86,7 +86,9 @@ end
 
 -- Find all points that appear within a range
 function QuadTree:queryRange(range)
-    range = AABB(unpack(range))
+    if range and not range.class then
+        range = AABB(unpack(range))
+    end
     -- Prepare an array of results
     local pointsInRange = {}
 
