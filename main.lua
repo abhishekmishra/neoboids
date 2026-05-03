@@ -108,7 +108,7 @@ function love.update(dt)
     end
 
     for _, boid in ipairs(boids) do
-        boid:update()
+        boid:update(dt)
         boid:edges()
     end
 end

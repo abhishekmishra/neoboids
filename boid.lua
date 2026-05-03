@@ -6,6 +6,7 @@
 local class = require('lib.neoluv.middleclass')
 local nl = require('lib.neoluv')
 local Vector = nl.Vector
+local BASE_FPS = 60
 
 --- Boid class
 local Boid = class('Boid')
@@ -21,12 +22,12 @@ function Boid:initialize(panel, x, y)
     y = y or math.random(self.panel:getY(), self.panel:getHeight())
     self.position = Vector(x, y)
     self.velocity = Vector.random2D()
-    -- get random value in range 0.5 to 1.5
+    -- Scale the original per-frame tuning into per-second units.
     local m = math.random(20, 40) / 10
-    self.velocity:setMag(m)
+    self.velocity:setMag(m * BASE_FPS)
     self.acceleration = Vector(0, 0)
-    self.maxForce = 0.2
-    self.maxSpeed = 5
+    self.maxForce = 0.2 * BASE_FPS * BASE_FPS
+    self.maxSpeed = 5 * BASE_FPS
     self.boidWidth = 5
 end
 
@@ -134,10 +135,10 @@ function Boid:cohesion(boids)
 end
 
 --- update the boid
-function Boid:update()
-    self.position = self.position + self.velocity
-    self.velocity = self.velocity + self.acceleration
+function Boid:update(dt)
+    self.velocity = self.velocity + self.acceleration * dt
     self.velocity = self.velocity:limit(self.maxSpeed)
+    self.position = self.position + self.velocity * dt
     self.acceleration = self.acceleration * 0
 end
 
