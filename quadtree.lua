@@ -39,8 +39,8 @@ function QuadTree:initialize(boundary, capacity)
     -- children
     self.nw = nil
     self.ne = nil
-    self.sw = nil
     self.se = nil
+    self.sw = nil
 end
 
 -- Insert a point into the QuadTree
@@ -65,8 +65,8 @@ function QuadTree:insert(p)
 
     if (self.nw:insert(p)) then return true end
     if (self.ne:insert(p)) then return true end
-    if (self.sw:insert(p)) then return true end
     if (self.se:insert(p)) then return true end
+    if (self.sw:insert(p)) then return true end
 
     -- Otherwise, the point cannot be inserted for some unknown reason (this should never happen)
     return false
@@ -80,8 +80,8 @@ function QuadTree:subdivide()
     local y = self.boundary.y
     self.nw = QuadTree(AABB(x - qw, y - qh, qw, qh), self.capacity)
     self.ne = QuadTree(AABB(x + qw, y - qh, qw, qh), self.capacity)
-    self.sw = QuadTree(AABB(x + qw, y + qh, qw, qh), self.capacity)
-    self.se = QuadTree(AABB(x - qw, y + qh, qw, qh), self.capacity)
+    self.se = QuadTree(AABB(x + qw, y + qh, qw, qh), self.capacity)
+    self.sw = QuadTree(AABB(x - qw, y + qh, qw, qh), self.capacity)
 end
 
 -- Find all points that appear within a range
@@ -114,10 +114,10 @@ function QuadTree:queryRange(range)
     for _, p in ipairs(self.ne:queryRange(range)) do
         table.insert(pointsInRange, p)
     end
-    for _, p in ipairs(self.sw:queryRange(range)) do
+    for _, p in ipairs(self.se:queryRange(range)) do
         table.insert(pointsInRange, p)
     end
-    for _, p in ipairs(self.se:queryRange(range)) do
+    for _, p in ipairs(self.sw:queryRange(range)) do
         table.insert(pointsInRange, p)
     end
 
@@ -131,8 +131,8 @@ function QuadTree:draw()
     if self.nw ~= nil then
         self.nw:draw()
         self.ne:draw()
-        self.sw:draw()
         self.se:draw()
+        self.sw:draw()
     end
 end
 
