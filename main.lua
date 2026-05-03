@@ -27,7 +27,7 @@ local qtree
 
 local function initBoids()
     boids = {}
-    for i = 1, 1000 do
+    for i = 1, 100 do
         local b = Boid(boidPanel)
         table.insert(boids, b)
     end
@@ -69,7 +69,7 @@ function love.update(dt)
 
         boid:update()
     end
-    local w, h = love.graphics.getDimensions()
+    local w, h = cw - cpWidth, ch
     qtree = QuadTree({ w / 2, h / 2, w / 2, h / 2 })
     for _, boid in ipairs(boids) do
         local p = {
@@ -81,7 +81,7 @@ function love.update(dt)
     end
 
     for _, boid in ipairs(boids) do
-        local neighbourPoints = qtree:queryRange({ boid.position.x, boid.position.y, 25, 25 })
+        local neighbourPoints = qtree:queryRange({ boid.position.x, boid.position.y, w / 10, h / 10 })
         local neighbourBoids = {}
         for _, p in ipairs(neighbourPoints) do
             table.insert(neighbourBoids, p.boid)
