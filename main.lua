@@ -8,6 +8,7 @@ require('common')
 local Boid = require('boid')
 local nl = require('lib.neoluv')
 local ControlPanel = require('controlpanel')
+local QuadTree = require('quadtree')
 
 local cw, ch
 local top
@@ -22,10 +23,11 @@ local cpWidth = 180
 math.randomseed(os.time())
 
 local boids
+local qtree
 
 local function initBoids()
     boids = {}
-    for i = 1, 100 do
+    for i = 1, 1000 do
         local b = Boid(boidPanel)
         table.insert(boids, b)
     end
@@ -64,8 +66,28 @@ function love.update(dt)
 
     for _, boid in ipairs(boids) do
         boid:edges()
-        boid:flock(boids, controlPanel.alignmentSlider, controlPanel.cohesionSlider, controlPanel.separationSlider)
+
         boid:update()
+    end
+    local w, h = love.graphics.getDimensions()
+    qtree = QuadTree({ w / 2, h / 2, w / 2, h / 2 })
+    for _, boid in ipairs(boids) do
+        local p = {
+            x = boid.position.x,
+            y = boid.position.y,
+            boid = boid
+        }
+        qtree:insert(p)
+    end
+
+    for _, boid in ipairs(boids) do
+        local neighbourPoints = qtree:queryRange({ boid.position.x, boid.position.y, 25, 25 })
+        local neighbourBoids = {}
+        for _, p in ipairs(neighbourPoints) do
+            table.insert(neighbourBoids, p.boid)
+        end
+        boid:flock(neighbourBoids, controlPanel.alignmentSlider, controlPanel.cohesionSlider,
+            controlPanel.separationSlider)
     end
 end
 
@@ -79,6 +101,8 @@ function love.draw()
     for _, boid in ipairs(boids) do
         boid:show()
     end
+
+    -- qtree:draw()
 end
 
 -- escape to exit

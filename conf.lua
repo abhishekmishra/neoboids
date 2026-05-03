@@ -21,7 +21,5 @@ function love.conf(t)
     t.modules.touch = false
 
     -- enable console
-    -- TODO: turning on console crashes Love2D on Windows,
-    -- so it's disabled for now
     -- t.console = true
 end
