@@ -40,7 +40,7 @@ function ControlPanel:initialize(w, h)
 
     -- create and add alignment slider
     self.alignmentSlider = nl.Slider(
-        self:getSliderConfig(0.5, 1.5)
+        self:getSliderConfig(0.6, 1.5)
     )
 
     self.alignmentSlider:addChangeHandler(function(value)
@@ -64,7 +64,7 @@ function ControlPanel:initialize(w, h)
     self:addChild(cohesionLabel)
 
     self.cohesionSlider = nl.Slider(
-        self:getSliderConfig(0.1, 1)
+        self:getSliderConfig(0.4, 1)
     )
 
     self.cohesionSlider:addChangeHandler(function(value)
@@ -85,7 +85,7 @@ function ControlPanel:initialize(w, h)
     self:addChild(separationLabel)
 
     self.separationSlider = nl.Slider(
-        self:getSliderConfig(0.4, 1)
+        self:getSliderConfig(0.5, 1)
     )
 
     self.separationSlider:addChangeHandler(function(value)
